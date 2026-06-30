@@ -13,6 +13,7 @@ import {
 export type Section45Handlers = {
   startForward: () => Promise<boolean>;
   startBackward: () => Promise<boolean>;
+  showSection5Idle: () => void;
 };
 
 export type Section56Handlers = {

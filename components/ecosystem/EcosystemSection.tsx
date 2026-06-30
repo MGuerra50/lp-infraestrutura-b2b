@@ -114,7 +114,15 @@ export function EcosystemSection() {
   }, [shouldAnimateContent, isSection56Transitioning]);
 
   return (
-    <section ref={sectionRef} className="relative h-full overflow-hidden bg-[#050505] md:bg-transparent">
+    <section
+      ref={sectionRef}
+      className={[
+        "relative h-full overflow-hidden bg-[#050505]",
+        isActive && ecosystemTransitionReady && !isSection56Transitioning
+          ? "md:bg-transparent"
+          : "",
+      ].join(" ")}
+    >
       <Image
         src="/design-section5.webp"
         alt=""

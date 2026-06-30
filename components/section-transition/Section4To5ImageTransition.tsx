@@ -345,6 +345,7 @@ export function Section4To5ImageTransition() {
     section45HandlersRef.current = {
       startForward: runForward,
       startBackward: runBackward,
+      showSection5Idle: showSection5Fullscreen,
     };
 
     return () => {

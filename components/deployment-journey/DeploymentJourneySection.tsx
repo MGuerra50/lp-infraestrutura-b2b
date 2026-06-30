@@ -108,31 +108,33 @@ function JourneyStep({
   const { Icon } = step;
 
   return (
-    <li ref={stepRef} className="relative flex flex-1 flex-col items-center opacity-0">
-      <div className="relative z-10 flex flex-col items-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full border border-brand/35 bg-white/[0.03] text-brand shadow-[0_0_24px_rgba(47,169,255,0.15)] backdrop-blur-sm">
-          <Icon />
+    <li ref={stepRef} className="relative flex flex-1 flex-col opacity-0">
+      <article className="relative z-10 flex h-full w-full flex-col items-center rounded-2xl border border-white/20 bg-white/[0.07] px-5 py-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_8px_32px_rgba(0,0,0,0.18)] backdrop-blur-md transition-[border-color,box-shadow] duration-300 hover:border-brand/35 hover:shadow-[0_0_40px_rgba(47,169,255,0.12)] md:px-6 md:py-7">
+        <div className="flex flex-col items-center">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full border border-white/25 bg-white/[0.06] text-white shadow-[0_0_24px_rgba(255,255,255,0.08)] backdrop-blur-sm">
+            <Icon />
+          </div>
+          <span className="mt-4 text-[10px] font-semibold uppercase tracking-[0.24em] text-brand">
+            {step.step}
+          </span>
         </div>
-        <span className="mt-4 text-[10px] font-semibold uppercase tracking-[0.24em] text-brand">
-          {step.step}
-        </span>
-      </div>
+
+        <div className="mt-5 w-full text-center md:mt-6">
+          <h3 className="text-sm font-semibold uppercase tracking-[0.1em] text-white md:text-base">
+            {step.title}
+          </h3>
+          <p className="mt-3 text-sm leading-relaxed text-white/60">
+            {step.description}
+          </p>
+        </div>
+      </article>
 
       {!isLast ? (
         <div
-          className="pointer-events-none absolute left-[calc(50%+2rem)] top-8 hidden h-px w-[calc(100%-4rem)] bg-gradient-to-r from-brand/70 via-brand/30 to-white/10 md:block"
+          className="pointer-events-none absolute left-[calc(50%+2rem)] top-14 hidden h-px w-[calc(100%-4rem)] bg-gradient-to-r from-brand/70 via-brand/30 to-white/10 md:block"
           aria-hidden
         />
       ) : null}
-
-      <div className="mt-5 max-w-xs text-center md:mt-6">
-        <h3 className="text-sm font-semibold uppercase tracking-[0.1em] text-white md:text-base">
-          {step.title}
-        </h3>
-        <p className="mt-3 text-sm leading-relaxed text-white/55">
-          {step.description}
-        </p>
-      </div>
     </li>
   );
 }
@@ -219,12 +221,12 @@ export function DeploymentJourneySection() {
         alt=""
         fill
         unoptimized
-        className="object-cover object-center opacity-40"
+        className="object-cover object-center"
         sizes="100vw"
       />
 
       <div
-        className="pointer-events-none absolute inset-0 bg-[#050505]/70"
+        className="pointer-events-none absolute inset-0 bg-black/30"
         aria-hidden
       />
 
@@ -259,7 +261,7 @@ export function DeploymentJourneySection() {
           aria-hidden
         />
 
-        <ol className="flex flex-col gap-10 md:flex-row md:gap-6 lg:gap-8">
+        <ol className="flex flex-col gap-5 md:flex-row md:gap-6 lg:gap-8">
           {JOURNEY_STEPS.map((step, index) => (
             <JourneyStep
               key={step.step}
@@ -276,7 +278,7 @@ export function DeploymentJourneySection() {
           <Link
             ref={ctaRef}
             href="/agendar-consulta"
-            className="inline-flex items-center justify-center rounded-full border border-brand/40 bg-brand/10 px-8 py-3.5 text-sm font-medium text-white opacity-0 backdrop-blur-sm transition-colors hover:bg-brand hover:text-white"
+            className="inline-flex items-center justify-center rounded-full border border-white/25 bg-white/[0.08] px-8 py-3.5 text-sm font-medium text-white opacity-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-md transition-colors hover:border-brand/40 hover:bg-brand/15 hover:text-white"
           >
             Iniciar jornada de consultoria
           </Link>

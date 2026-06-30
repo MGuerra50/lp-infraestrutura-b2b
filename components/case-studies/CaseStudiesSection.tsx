@@ -4,7 +4,12 @@ import gsap from "gsap";
 import Image from "next/image";
 import { useEffect, useRef } from "react";
 import { useFullPageScroll } from "@/components/scroll/FullPageScrollContext";
-import { SECTION56_CARD_STAGGER } from "@/lib/section-transition/section56Constants";
+import {
+  SECTION56_CARD_STAGGER,
+  SECTION56_FORWARD_CARD_DELAY,
+  SECTION56_FORWARD_CARD_DURATION,
+  SECTION56_FORWARD_HEADER_DURATION,
+} from "@/lib/section-transition/section56Constants";
 
 const CASE_STUDIES = [
   {
@@ -120,16 +125,20 @@ export function CaseStudiesSection() {
 
     const timeline = gsap.timeline({ defaults: { ease: "power3.out" } });
 
-    timeline.to(header, { opacity: 1, y: 0, duration: 0.7 }, 0);
+    timeline.to(
+      header,
+      { opacity: 1, y: 0, duration: SECTION56_FORWARD_HEADER_DURATION },
+      0,
+    );
     timeline.to(
       cards,
       {
         opacity: 1,
         y: 0,
-        duration: 0.75,
+        duration: SECTION56_FORWARD_CARD_DURATION,
         stagger: SECTION56_CARD_STAGGER,
       },
-      0.35,
+      SECTION56_FORWARD_CARD_DELAY,
     );
 
     timelineRef.current = timeline;
@@ -154,7 +163,7 @@ export function CaseStudiesSection() {
       />
 
       <div
-        className="pointer-events-none absolute inset-0 bg-black/85 md:hidden"
+        className="pointer-events-none absolute inset-0 bg-black/30 md:hidden"
         aria-hidden
       />
 

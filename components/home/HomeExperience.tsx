@@ -9,6 +9,7 @@ import { TechnicalResourcesSection } from "@/components/technical-resources/Tech
 import { EcosystemSection } from "@/components/ecosystem/EcosystemSection";
 import { CaseStudiesSection } from "@/components/case-studies/CaseStudiesSection";
 import { DeploymentJourneySection } from "@/components/deployment-journey/DeploymentJourneySection";
+import { ContactCtaSection } from "@/components/contact-cta/ContactCtaSection";
 
 export function HomeExperience() {
   return (
@@ -34,6 +35,10 @@ export function HomeExperience() {
 
       <FullPageSection id="jornada-deploy" className="relative z-30 bg-[#050505]">
         <DeploymentJourneySection />
+      </FullPageSection>
+
+      <FullPageSection id="contato" className="relative z-30 bg-[#050508]">
+        <ContactCtaSection />
       </FullPageSection>
     </FullPageScroller>
   );
