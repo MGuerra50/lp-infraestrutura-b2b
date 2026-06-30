@@ -28,7 +28,7 @@ export function HomeExperience() {
         <EcosystemSection />
       </FullPageSection>
 
-      <FullPageSection id="case-studies" className="relative z-30 bg-[#050505]">
+      <FullPageSection id="case-studies" className="relative z-[110] bg-[#050505] md:bg-transparent">
         <CaseStudiesSection />
       </FullPageSection>
 

@@ -17,8 +17,12 @@ export function FullPageSection({
   onEnter,
 }: FullPageSectionProps) {
   const sectionRef = useRef<HTMLElement>(null);
-  const { activeSectionId, setActiveSectionId, isSection45Transitioning } =
-    useFullPageScroll();
+  const {
+    activeSectionId,
+    setActiveSectionId,
+    isSection45Transitioning,
+    isSection56Transitioning,
+  } = useFullPageScroll();
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -28,10 +32,16 @@ export function FullPageSection({
       ([entry]) => {
         if (!entry?.isIntersecting || entry.intersectionRatio < 0.6) return;
         if (activeSectionId === id) return;
-        if (isSection45Transitioning) return;
+        if (isSection45Transitioning || isSection56Transitioning) return;
         if (
           (id === "ecossistema" && activeSectionId === "recursos-tecnicos") ||
           (id === "recursos-tecnicos" && activeSectionId === "ecossistema")
+        ) {
+          return;
+        }
+        if (
+          (id === "case-studies" && activeSectionId === "ecossistema") ||
+          (id === "ecossistema" && activeSectionId === "case-studies")
         ) {
           return;
         }
@@ -45,7 +55,14 @@ export function FullPageSection({
     observer.observe(section);
 
     return () => observer.disconnect();
-  }, [activeSectionId, id, onEnter, setActiveSectionId, isSection45Transitioning]);
+  }, [
+    activeSectionId,
+    id,
+    onEnter,
+    setActiveSectionId,
+    isSection45Transitioning,
+    isSection56Transitioning,
+  ]);
 
   return (
     <section

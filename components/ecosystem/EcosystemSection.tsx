@@ -12,11 +12,18 @@ const TITLE_CLASS =
   "block whitespace-nowrap text-[clamp(2rem,min(9vw,12vh),5.75rem)] font-bold leading-[0.9] tracking-tight";
 
 export function EcosystemSection() {
-  const { activeSectionId, ecosystemTransitionReady, isSection45Transitioning } =
-    useFullPageScroll();
+  const {
+    activeSectionId,
+    ecosystemTransitionReady,
+    isSection45Transitioning,
+    isSection56Transitioning,
+  } = useFullPageScroll();
   const isActive = activeSectionId === "ecossistema";
   const shouldAnimateContent =
-    isActive && ecosystemTransitionReady && !isSection45Transitioning;
+    isActive &&
+    ecosystemTransitionReady &&
+    !isSection45Transitioning &&
+    !isSection56Transitioning;
   const showNativeBackground = isActive && ecosystemTransitionReady;
 
   const sectionRef = useRef<HTMLElement>(null);
@@ -35,6 +42,8 @@ export function EcosystemSection() {
     timelineRef.current = null;
 
     if (!section || !titleLines.length) return;
+
+    if (isSection56Transitioning) return;
 
     const prefersReducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
@@ -102,7 +111,7 @@ export function EcosystemSection() {
     return () => {
       timeline.kill();
     };
-  }, [shouldAnimateContent]);
+  }, [shouldAnimateContent, isSection56Transitioning]);
 
   return (
     <section ref={sectionRef} className="relative h-full overflow-hidden bg-[#050505] md:bg-transparent">
@@ -124,7 +133,10 @@ export function EcosystemSection() {
         aria-hidden
       />
 
-      <div className="relative z-10 flex h-full w-full min-w-0 flex-col justify-center px-6 py-14 md:px-12 md:py-16 lg:px-16 lg:py-20 xl:px-20">
+      <div
+        data-ecosystem-content
+        className="relative z-10 flex h-full w-full min-w-0 flex-col justify-center px-6 py-14 md:px-12 md:py-16 lg:px-16 lg:py-20 xl:px-20"
+      >
         <div className="flex min-w-0 flex-col pb-8">
           <h2 className="flex w-full min-w-0 max-w-full flex-col items-start">
             {TITLE_LINES.map((line, index) => (

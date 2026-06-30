@@ -4,6 +4,7 @@ import gsap from "gsap";
 import Image from "next/image";
 import { useEffect, useRef } from "react";
 import { useFullPageScroll } from "@/components/scroll/FullPageScrollContext";
+import { SECTION56_CARD_STAGGER } from "@/lib/section-transition/section56Constants";
 
 const CASE_STUDIES = [
   {
@@ -39,6 +40,7 @@ function CaseStudyCard({
   return (
     <article
       ref={cardRef}
+      data-case-studies-card
       className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/40 bg-white/85 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.8),0_8px_32px_rgba(0,0,0,0.12)] backdrop-blur-sm transition-[border-color,box-shadow] duration-300 hover:border-brand/40 hover:shadow-[0_0_40px_rgba(47,169,255,0.15)] md:p-5 lg:p-6"
     >
       <div
@@ -72,8 +74,15 @@ function CaseStudyCard({
 }
 
 export function CaseStudiesSection() {
-  const { activeSectionId } = useFullPageScroll();
+  const {
+    activeSectionId,
+    caseStudiesTransitionReady,
+    isSection56Transitioning,
+  } = useFullPageScroll();
   const isActive = activeSectionId === "case-studies";
+  const shouldAnimateContent =
+    isActive && caseStudiesTransitionReady && !isSection56Transitioning;
+  const showNativeBackground = isActive && caseStudiesTransitionReady;
 
   const headerRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLElement | null)[]>([]);
@@ -88,11 +97,13 @@ export function CaseStudiesSection() {
 
     if (!header || !cards.length) return;
 
+    if (isSection56Transitioning) return;
+
     const prefersReducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
 
-    if (!isActive) {
+    if (!shouldAnimateContent) {
       gsap.set(header, { opacity: 0, y: 24 });
       gsap.set(cards, { opacity: 0, y: 36 });
       return;
@@ -112,8 +123,13 @@ export function CaseStudiesSection() {
     timeline.to(header, { opacity: 1, y: 0, duration: 0.7 }, 0);
     timeline.to(
       cards,
-      { opacity: 1, y: 0, duration: 0.85, stagger: 0.12 },
-      0.15,
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.75,
+        stagger: SECTION56_CARD_STAGGER,
+      },
+      0.35,
     );
 
     timelineRef.current = timeline;
@@ -121,26 +137,33 @@ export function CaseStudiesSection() {
     return () => {
       timeline.kill();
     };
-  }, [isActive]);
+  }, [shouldAnimateContent, isSection56Transitioning]);
 
   return (
-    <section className="relative h-full overflow-hidden bg-[#050505]">
+    <section className="relative h-full overflow-hidden bg-[#050505] md:bg-transparent">
       <Image
         src="/section6.webp"
         alt=""
         fill
         unoptimized
-        className="object-cover object-center opacity-50"
+        className={[
+          "object-cover object-center md:hidden",
+          showNativeBackground ? "opacity-50" : "opacity-0",
+        ].join(" ")}
         sizes="100vw"
       />
 
       <div
-        className="pointer-events-none absolute inset-0 bg-[#050505]/75"
+        className="pointer-events-none absolute inset-0 bg-black/85 md:hidden"
         aria-hidden
       />
 
       <div className="relative z-10 flex h-full flex-col px-6 py-14 md:px-10 md:py-16 lg:px-16 lg:py-20">
-        <header ref={headerRef} className="mb-8 shrink-0 opacity-0 md:mb-10">
+        <header
+          ref={headerRef}
+          data-case-studies-header
+          className="mb-8 shrink-0 opacity-0 md:mb-10"
+        >
           <p className="mb-3 text-[10px] font-medium uppercase tracking-[0.22em] text-brand">
             Resultados comprovados
           </p>
