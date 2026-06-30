@@ -11,8 +11,8 @@ import {
 } from "react";
 
 export type Section45Handlers = {
-  startForward: () => Promise<void>;
-  startBackward: () => Promise<void>;
+  startForward: () => Promise<boolean>;
+  startBackward: () => Promise<boolean>;
 };
 
 type FullPageScrollContextValue = {

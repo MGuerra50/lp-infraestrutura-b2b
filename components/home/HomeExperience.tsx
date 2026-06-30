@@ -24,7 +24,7 @@ export function HomeExperience() {
         <TechnicalResourcesSection />
       </FullPageSection>
 
-      <FullPageSection id="ecossistema" className="relative z-30">
+      <FullPageSection id="ecossistema" className="relative z-[110]">
         <EcosystemSection />
       </FullPageSection>
 

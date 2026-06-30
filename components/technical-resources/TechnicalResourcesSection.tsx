@@ -1,7 +1,6 @@
 "use client";
 
 import gsap from "gsap";
-import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useFullPageScroll } from "@/components/scroll/FullPageScrollContext";
@@ -245,7 +244,7 @@ function ResourceCarousel({ isActive }: { isActive: boolean }) {
 }
 
 export function TechnicalResourcesSection() {
-  const { activeSectionId, isSection45Transitioning } = useFullPageScroll();
+  const { activeSectionId } = useFullPageScroll();
   const isActive = activeSectionId === "recursos-tecnicos";
   const [isVisible, setIsVisible] = useState(false);
 
@@ -260,28 +259,6 @@ export function TechnicalResourcesSection() {
 
   return (
     <section className="relative h-full overflow-hidden bg-[#f4f4f2]">
-      <div
-        className={[
-          "pointer-events-none absolute inset-y-0 right-0 z-0 hidden w-[36%] overflow-hidden bg-[#060d18] md:block",
-          isSection45Transitioning ? "opacity-0" : "opacity-100",
-        ].join(" ")}
-        style={{
-          clipPath: "polygon(24% 0, 100% 0, 100% 100%, 6% 100%)",
-        }}
-        aria-hidden
-      >
-        <div className="absolute inset-0 origin-center scale-[1.12]">
-          <Image
-            src="/Design2.webp"
-            alt=""
-            fill
-            unoptimized
-            className="object-cover object-center"
-            sizes="50vw"
-          />
-        </div>
-      </div>
-
       <div
         className={[
           "relative z-20 flex h-full transition-all duration-700 ease-out",

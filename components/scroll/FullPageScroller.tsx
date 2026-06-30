@@ -22,6 +22,8 @@ function FullPageScrollerInner({ children }: { children: ReactNode }) {
   } = useFullPageScroll();
   const lockRef = useRef(false);
   const touchStartYRef = useRef<number | null>(null);
+  const isSection45TransitioningRef = useRef(isSection45Transitioning);
+  isSection45TransitioningRef.current = isSection45Transitioning;
 
   useEffect(() => {
     const container = containerRef.current;
@@ -56,7 +58,9 @@ function FullPageScrollerInner({ children }: { children: ReactNode }) {
     const scrollToIndex = (index: number) => {
       const sections = getSections();
       const target = sections[index];
-      if (!target || lockRef.current || isSection45Transitioning) return;
+      if (!target || lockRef.current || isSection45TransitioningRef.current) {
+        return;
+      }
 
       lockRef.current = true;
       target.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -68,27 +72,32 @@ function FullPageScrollerInner({ children }: { children: ReactNode }) {
 
     const trySection45Transition = async (direction: 1 | -1) => {
       const currentSectionId = getCurrentSectionId() ?? activeSectionId;
+      const handlers = section45HandlersRef.current;
 
       if (
         direction === 1 &&
         currentSectionId === SECTION4_ID &&
-        section45HandlersRef.current
+        handlers
       ) {
-        lockRef.current = true;
-        await section45HandlersRef.current.startForward();
-        lockRef.current = false;
-        return true;
+        try {
+          lockRef.current = true;
+          return await handlers.startForward();
+        } finally {
+          lockRef.current = false;
+        }
       }
 
       if (
         direction === -1 &&
         currentSectionId === SECTION5_ID &&
-        section45HandlersRef.current
+        handlers
       ) {
-        lockRef.current = true;
-        await section45HandlersRef.current.startBackward();
-        lockRef.current = false;
-        return true;
+        try {
+          lockRef.current = true;
+          return await handlers.startBackward();
+        } finally {
+          lockRef.current = false;
+        }
       }
 
       return false;
@@ -99,7 +108,7 @@ function FullPageScrollerInner({ children }: { children: ReactNode }) {
 
       event.preventDefault();
 
-      if (lockRef.current || isSection45Transitioning) return;
+      if (lockRef.current || isSection45TransitioningRef.current) return;
 
       const sections = getSections();
       const currentIndex = getCurrentIndex();
@@ -128,7 +137,7 @@ function FullPageScrollerInner({ children }: { children: ReactNode }) {
       const deltaY = startY - endY;
       if (Math.abs(deltaY) < 48) return;
 
-      if (lockRef.current || isSection45Transitioning) return;
+      if (lockRef.current || isSection45TransitioningRef.current) return;
 
       const sections = getSections();
       const currentIndex = getCurrentIndex();
@@ -144,7 +153,7 @@ function FullPageScrollerInner({ children }: { children: ReactNode }) {
     };
 
     const handleKeyDown = async (event: KeyboardEvent) => {
-      if (lockRef.current || isSection45Transitioning) return;
+      if (lockRef.current || isSection45TransitioningRef.current) return;
 
       const sections = getSections();
       const currentIndex = getCurrentIndex();
@@ -181,12 +190,7 @@ function FullPageScrollerInner({ children }: { children: ReactNode }) {
       container.removeEventListener("touchend", handleTouchEnd);
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [
-    scrollContainerRef,
-    isSection45Transitioning,
-    section45HandlersRef,
-    activeSectionId,
-  ]);
+  }, [scrollContainerRef, section45HandlersRef, activeSectionId]);
 
   return (
     <div

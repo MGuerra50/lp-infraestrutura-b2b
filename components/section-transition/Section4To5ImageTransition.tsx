@@ -2,7 +2,7 @@
 
 import gsap from "gsap";
 import Image from "next/image";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import {
   scrollToSectionId,
   SECTION4_ID,
@@ -30,7 +30,9 @@ function wait(ms: number) {
 
 export function Section4To5ImageTransition() {
   const {
+    activeSectionId,
     scrollContainerRef,
+    ecosystemTransitionReady,
     setActiveSectionId,
     setEcosystemTransitionReady,
     setIsSection45Transitioning,
@@ -43,6 +45,93 @@ export function Section4To5ImageTransition() {
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
   const runningRef = useRef(false);
 
+  const setActiveSectionIdRef = useRef(setActiveSectionId);
+  const setEcosystemTransitionReadyRef = useRef(setEcosystemTransitionReady);
+  const setIsSection45TransitioningRef = useRef(setIsSection45Transitioning);
+  const scrollContainerRefRef = useRef(scrollContainerRef);
+
+  setActiveSectionIdRef.current = setActiveSectionId;
+  setEcosystemTransitionReadyRef.current = setEcosystemTransitionReady;
+  setIsSection45TransitioningRef.current = setIsSection45Transitioning;
+  scrollContainerRefRef.current = scrollContainerRef;
+
+  const hideOverlay = useCallback(() => {
+    const overlay = overlayRef.current;
+    const image4 = image4Ref.current;
+    const image5 = image5Ref.current;
+    if (!overlay || !image4 || !image5) return;
+
+    gsap.set(overlay, { autoAlpha: 0 });
+    gsap.set(image4, { autoAlpha: 0 });
+    gsap.set(image5, { autoAlpha: 0 });
+  }, []);
+
+  const showSection4Panel = useCallback(() => {
+    const overlay = overlayRef.current;
+    const image4 = image4Ref.current;
+    const image5 = image5Ref.current;
+    if (!overlay || !image4 || !image5) return;
+
+    gsap.set(overlay, {
+      autoAlpha: 1,
+      width: SECTION4_IMAGE_PANEL.width,
+      right: 0,
+      left: "auto",
+      clipPath: SECTION4_IMAGE_PANEL.clipPath,
+    });
+    gsap.set(image4, { autoAlpha: 1 });
+    gsap.set(image5, { autoAlpha: 0 });
+  }, []);
+
+  const showSection5Fullscreen = useCallback(() => {
+    const overlay = overlayRef.current;
+    const image4 = image4Ref.current;
+    const image5 = image5Ref.current;
+    if (!overlay || !image4 || !image5) return;
+
+    gsap.set(overlay, {
+      autoAlpha: 1,
+      width: SECTION5_IMAGE_PANEL.width,
+      right: 0,
+      left: "auto",
+      clipPath: SECTION5_IMAGE_PANEL.clipPath,
+    });
+    gsap.set(image4, { autoAlpha: 0 });
+    gsap.set(image5, { autoAlpha: 1 });
+  }, []);
+
+  const syncIdleOverlay = useCallback(() => {
+    if (runningRef.current) return;
+
+    const desktop = isDesktopViewport();
+
+    if (activeSectionId === SECTION4_ID && desktop) {
+      showSection4Panel();
+      return;
+    }
+
+    if (
+      activeSectionId === SECTION5_ID &&
+      ecosystemTransitionReady &&
+      desktop
+    ) {
+      showSection5Fullscreen();
+      return;
+    }
+
+    hideOverlay();
+  }, [
+    activeSectionId,
+    ecosystemTransitionReady,
+    hideOverlay,
+    showSection4Panel,
+    showSection5Fullscreen,
+  ]);
+
+  useEffect(() => {
+    syncIdleOverlay();
+  }, [syncIdleOverlay]);
+
   useEffect(() => {
     const overlay = overlayRef.current;
     const image4 = image4Ref.current;
@@ -54,172 +143,203 @@ export function Section4To5ImageTransition() {
       "(prefers-reduced-motion: reduce)",
     ).matches;
 
-    const resetOverlay = () => {
-      gsap.set(overlay, { autoAlpha: 0 });
-      gsap.set(image4, { autoAlpha: 0 });
-      gsap.set(image5, { autoAlpha: 0 });
-    };
-
-    const runForward = async () => {
-      if (runningRef.current) return;
+    const runForward = async (): Promise<boolean> => {
+      if (runningRef.current) return false;
       runningRef.current = true;
+      setIsSection45TransitioningRef.current(true);
+      setEcosystemTransitionReadyRef.current(false);
 
-      if (prefersReducedMotion) {
-        scrollToSectionId(scrollContainerRef.current, SECTION5_ID);
-        setActiveSectionId(SECTION5_ID);
-        setEcosystemTransitionReady(true);
-        runningRef.current = false;
-        return;
-      }
-
-      setIsSection45Transitioning(true);
-      setEcosystemTransitionReady(false);
-
-      const desktop = isDesktopViewport();
-      const panelState = desktop ? SECTION4_IMAGE_PANEL : SECTION5_IMAGE_PANEL;
-
-      timelineRef.current?.kill();
-
-      gsap.set(overlay, {
-        autoAlpha: 1,
-        width: panelState.width,
-        right: 0,
-        left: "auto",
-        clipPath: panelState.clipPath,
-      });
-      gsap.set(image4, { autoAlpha: 1 });
-      gsap.set(image5, { autoAlpha: 0 });
-
-      await new Promise<void>((resolve) => {
-        const timeline = gsap.timeline({
-          onComplete: resolve,
-        });
-
-        timeline.to(
-          image4,
-          { autoAlpha: 0, duration: SECTION45_FADE_DURATION, ease: "power2.inOut" },
-          0,
-        );
-        timeline.to(
-          image5,
-          { autoAlpha: 1, duration: SECTION45_FADE_DURATION, ease: "power2.inOut" },
-          0,
-        );
-
-        if (desktop) {
-          timeline.to(
-            overlay,
-            {
-              width: SECTION5_IMAGE_PANEL.width,
-              clipPath: SECTION5_IMAGE_PANEL.clipPath,
-              duration: SECTION45_EXPAND_DURATION,
-              ease: "power3.inOut",
-            },
-            SECTION45_FADE_DURATION,
-          );
+      try {
+        if (prefersReducedMotion) {
+          scrollToSectionId(scrollContainerRefRef.current.current, SECTION5_ID);
+          setActiveSectionIdRef.current(SECTION5_ID);
+          setEcosystemTransitionReadyRef.current(true);
+          return true;
         }
 
-        timelineRef.current = timeline;
-      });
+        const desktop = isDesktopViewport();
+        const panelState = desktop ? SECTION4_IMAGE_PANEL : SECTION5_IMAGE_PANEL;
 
-      scrollToSectionId(scrollContainerRef.current, SECTION5_ID);
-      setActiveSectionId(SECTION5_ID);
-      setEcosystemTransitionReady(true);
+        timelineRef.current?.kill();
 
-      resetOverlay();
-      setIsSection45Transitioning(false);
-      runningRef.current = false;
-    };
-
-    const runBackward = async () => {
-      if (runningRef.current) return;
-      runningRef.current = true;
-
-      if (prefersReducedMotion) {
-        scrollToSectionId(scrollContainerRef.current, SECTION4_ID);
-        setActiveSectionId(SECTION4_ID);
-        setEcosystemTransitionReady(false);
-        runningRef.current = false;
-        return;
-      }
-
-      setIsSection45Transitioning(true);
-      setEcosystemTransitionReady(false);
-
-      const desktop = isDesktopViewport();
-      const panelState = desktop ? SECTION4_IMAGE_PANEL : SECTION5_IMAGE_PANEL;
-
-      timelineRef.current?.kill();
-
-      gsap.set(overlay, {
-        autoAlpha: 1,
-        width: SECTION5_IMAGE_PANEL.width,
-        right: 0,
-        left: "auto",
-        clipPath: SECTION5_IMAGE_PANEL.clipPath,
-      });
-      gsap.set(image4, { autoAlpha: 0 });
-      gsap.set(image5, { autoAlpha: 1 });
-
-      scrollToSectionId(scrollContainerRef.current, SECTION4_ID);
-      setActiveSectionId(SECTION4_ID);
-
-      await wait(0);
-
-      await new Promise<void>((resolve) => {
-        const timeline = gsap.timeline({
-          onComplete: resolve,
+        gsap.set(overlay, {
+          autoAlpha: 1,
+          width: panelState.width,
+          right: 0,
+          left: "auto",
+          clipPath: panelState.clipPath,
         });
+        gsap.set(image4, { autoAlpha: 1 });
+        gsap.set(image5, { autoAlpha: 0 });
 
-        if (desktop) {
-          timeline.to(
-            overlay,
-            {
-              width: panelState.width,
-              clipPath: panelState.clipPath,
-              duration: SECTION45_EXPAND_DURATION,
-              ease: "power3.inOut",
-            },
-            0,
-          );
+        await new Promise<void>((resolve, reject) => {
+          const timeline = gsap.timeline({
+            onComplete: resolve,
+            onInterrupt: () => reject(new Error("interrupted")),
+          });
 
           timeline.to(
-            image5,
+            image4,
             {
               autoAlpha: 0,
               duration: SECTION45_FADE_DURATION,
               ease: "power2.inOut",
             },
-            SECTION45_EXPAND_DURATION,
+            0,
           );
           timeline.to(
-            image4,
+            image5,
             {
               autoAlpha: 1,
               duration: SECTION45_FADE_DURATION,
               ease: "power2.inOut",
             },
-            SECTION45_EXPAND_DURATION,
+            0,
           );
+
+          if (desktop) {
+            timeline.to(
+              overlay,
+              {
+                width: SECTION5_IMAGE_PANEL.width,
+                clipPath: SECTION5_IMAGE_PANEL.clipPath,
+                duration: SECTION45_EXPAND_DURATION,
+                ease: "power3.inOut",
+              },
+              SECTION45_FADE_DURATION,
+            );
+          }
+
+          timelineRef.current = timeline;
+        });
+
+        scrollToSectionId(scrollContainerRefRef.current.current, SECTION5_ID);
+        setActiveSectionIdRef.current(SECTION5_ID);
+        setEcosystemTransitionReadyRef.current(true);
+
+        if (desktop) {
+          showSection5Fullscreen();
         } else {
-          timeline.to(
-            image5,
-            { autoAlpha: 0, duration: SECTION45_FADE_DURATION, ease: "power2.inOut" },
-            0,
-          );
-          timeline.to(
-            image4,
-            { autoAlpha: 1, duration: SECTION45_FADE_DURATION, ease: "power2.inOut" },
-            0,
-          );
+          hideOverlay();
         }
 
-        timelineRef.current = timeline;
-      });
+        return true;
+      } catch {
+        return false;
+      } finally {
+        timelineRef.current = null;
+        runningRef.current = false;
+        setIsSection45TransitioningRef.current(false);
+      }
+    };
 
-      resetOverlay();
-      setIsSection45Transitioning(false);
-      runningRef.current = false;
+    const runBackward = async (): Promise<boolean> => {
+      if (runningRef.current) return false;
+      runningRef.current = true;
+      setIsSection45TransitioningRef.current(true);
+      setEcosystemTransitionReadyRef.current(false);
+
+      try {
+        if (prefersReducedMotion) {
+          scrollToSectionId(scrollContainerRefRef.current.current, SECTION4_ID);
+          setActiveSectionIdRef.current(SECTION4_ID);
+          return true;
+        }
+
+        const desktop = isDesktopViewport();
+        const panelState = desktop ? SECTION4_IMAGE_PANEL : SECTION5_IMAGE_PANEL;
+
+        timelineRef.current?.kill();
+
+        gsap.set(overlay, {
+          autoAlpha: 1,
+          width: SECTION5_IMAGE_PANEL.width,
+          right: 0,
+          left: "auto",
+          clipPath: SECTION5_IMAGE_PANEL.clipPath,
+        });
+        gsap.set(image4, { autoAlpha: 0 });
+        gsap.set(image5, { autoAlpha: 1 });
+
+        scrollToSectionId(scrollContainerRefRef.current.current, SECTION4_ID);
+        setActiveSectionIdRef.current(SECTION4_ID);
+
+        await wait(0);
+
+        await new Promise<void>((resolve, reject) => {
+          const timeline = gsap.timeline({
+            onComplete: resolve,
+            onInterrupt: () => reject(new Error("interrupted")),
+          });
+
+          if (desktop) {
+            timeline.to(
+              overlay,
+              {
+                width: panelState.width,
+                clipPath: panelState.clipPath,
+                duration: SECTION45_EXPAND_DURATION,
+                ease: "power3.inOut",
+              },
+              0,
+            );
+
+            timeline.to(
+              image5,
+              {
+                autoAlpha: 0,
+                duration: SECTION45_FADE_DURATION,
+                ease: "power2.inOut",
+              },
+              SECTION45_EXPAND_DURATION,
+            );
+            timeline.to(
+              image4,
+              {
+                autoAlpha: 1,
+                duration: SECTION45_FADE_DURATION,
+                ease: "power2.inOut",
+              },
+              SECTION45_EXPAND_DURATION,
+            );
+          } else {
+            timeline.to(
+              image5,
+              {
+                autoAlpha: 0,
+                duration: SECTION45_FADE_DURATION,
+                ease: "power2.inOut",
+              },
+              0,
+            );
+            timeline.to(
+              image4,
+              {
+                autoAlpha: 1,
+                duration: SECTION45_FADE_DURATION,
+                ease: "power2.inOut",
+              },
+              0,
+            );
+          }
+
+          timelineRef.current = timeline;
+        });
+
+        if (desktop) {
+          showSection4Panel();
+        } else {
+          hideOverlay();
+        }
+
+        return true;
+      } catch {
+        return false;
+      } finally {
+        timelineRef.current = null;
+        runningRef.current = false;
+        setIsSection45TransitioningRef.current(false);
+      }
     };
 
     section45HandlersRef.current = {
@@ -228,16 +348,13 @@ export function Section4To5ImageTransition() {
     };
 
     return () => {
-      timelineRef.current?.kill();
       section45HandlersRef.current = null;
-      runningRef.current = false;
     };
   }, [
-    scrollContainerRef,
     section45HandlersRef,
-    setActiveSectionId,
-    setEcosystemTransitionReady,
-    setIsSection45Transitioning,
+    hideOverlay,
+    showSection4Panel,
+    showSection5Fullscreen,
   ]);
 
   return (

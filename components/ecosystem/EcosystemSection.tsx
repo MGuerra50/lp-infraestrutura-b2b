@@ -17,8 +17,7 @@ export function EcosystemSection() {
   const isActive = activeSectionId === "ecossistema";
   const shouldAnimateContent =
     isActive && ecosystemTransitionReady && !isSection45Transitioning;
-  const showBackgroundImage =
-    isActive && ecosystemTransitionReady && !isSection45Transitioning;
+  const showNativeBackground = isActive && ecosystemTransitionReady;
 
   const sectionRef = useRef<HTMLElement>(null);
   const titleLineRefs = useRef<(HTMLSpanElement | null)[]>([]);
@@ -106,7 +105,7 @@ export function EcosystemSection() {
   }, [shouldAnimateContent]);
 
   return (
-    <section ref={sectionRef} className="relative h-full overflow-hidden bg-[#050505]">
+    <section ref={sectionRef} className="relative h-full overflow-hidden bg-[#050505] md:bg-transparent">
       <Image
         src="/design-section5.webp"
         alt=""
@@ -114,8 +113,8 @@ export function EcosystemSection() {
         unoptimized
         priority={false}
         className={[
-          "object-cover object-center transition-opacity duration-200",
-          showBackgroundImage ? "opacity-100" : "opacity-0",
+          "object-cover object-center md:hidden",
+          showNativeBackground ? "opacity-100" : "opacity-0",
         ].join(" ")}
         sizes="100vw"
       />
