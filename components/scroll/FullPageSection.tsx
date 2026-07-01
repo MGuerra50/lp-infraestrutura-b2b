@@ -7,6 +7,7 @@ type FullPageSectionProps = {
   id: string;
   children?: ReactNode;
   className?: string;
+  footerExtension?: boolean;
   onEnter?: () => void;
 };
 
@@ -14,6 +15,7 @@ export function FullPageSection({
   id,
   children,
   className = "",
+  footerExtension = false,
   onEnter,
 }: FullPageSectionProps) {
   const sectionRef = useRef<HTMLElement>(null);
@@ -69,7 +71,12 @@ export function FullPageSection({
       ref={sectionRef}
       id={id}
       data-fullpage-section={id}
-      className={`relative h-dvh w-full shrink-0 snap-start snap-always ${className}`}
+      {...(footerExtension ? { "data-footer-extension": "" } : {})}
+      className={[
+        "relative w-full shrink-0 snap-start snap-always",
+        footerExtension ? "h-[150dvh]" : "h-dvh",
+        className,
+      ].join(" ")}
     >
       {children}
     </section>

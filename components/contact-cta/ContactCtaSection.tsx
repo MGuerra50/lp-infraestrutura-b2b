@@ -89,7 +89,7 @@ export function ContactCtaSection() {
   }, [isActive]);
 
   return (
-    <section className="relative h-full overflow-hidden bg-[#050508]">
+    <div className="relative h-full overflow-hidden bg-[#050508]">
       <div
         className="pointer-events-none absolute inset-0"
         style={{
@@ -183,6 +183,6 @@ export function ContactCtaSection() {
           </form>
         </div>
       </div>
-    </section>
+    </div>
   );
 }

@@ -4,6 +4,11 @@ import { useEffect, useRef, type ReactNode } from "react";
 import { Section4To5ImageTransition } from "@/components/section-transition/Section4To5ImageTransition";
 import { Section5To6Transition } from "@/components/section-transition/Section5To6Transition";
 import {
+  getClosestSnapIndex,
+  getSectionIdAtScroll,
+  getSnapTargets,
+} from "@/lib/scroll/fullPageSnap";
+import {
   FullPageScrollProvider,
   SECTION4_ID,
   SECTION5_ID,
@@ -46,33 +51,14 @@ function FullPageScrollerInner({ children }: { children: ReactNode }) {
     const isTransitioning = () =>
       isSection45TransitioningRef.current || isSection56TransitioningRef.current;
 
-    const getSections = () =>
-      Array.from(
-        container.querySelectorAll<HTMLElement>("[data-fullpage-section]"),
-      );
+    const getCurrentSectionId = () =>
+      getSectionIdAtScroll(container, container.scrollTop) ?? activeSectionId;
 
-    const getCurrentIndex = () => {
-      const viewportHeight = container.clientHeight;
-      if (!viewportHeight) return 0;
-
-      return Math.round(container.scrollTop / viewportHeight);
-    };
-
-    const getCurrentSectionId = () => {
-      const sections = getSections();
-      const currentIndex = getCurrentIndex();
-      return sections[currentIndex]?.getAttribute("data-fullpage-section");
-    };
-
-    const scrollToIndex = (index: number) => {
-      const sections = getSections();
-      const target = sections[index];
-      if (!target || lockRef.current || isTransitioning()) {
-        return;
-      }
+    const scrollToTop = (top: number) => {
+      if (lockRef.current || isTransitioning()) return;
 
       lockRef.current = true;
-      target.scrollIntoView({ behavior: "smooth", block: "start" });
+      container.scrollTo({ top, behavior: "smooth" });
 
       window.setTimeout(() => {
         lockRef.current = false;
@@ -80,7 +66,7 @@ function FullPageScrollerInner({ children }: { children: ReactNode }) {
     };
 
     const trySection45Transition = async (direction: 1 | -1) => {
-      const currentSectionId = getCurrentSectionId() ?? activeSectionId;
+      const currentSectionId = getCurrentSectionId();
       const handlers = section45HandlersRef.current;
 
       if (direction === 1 && currentSectionId === SECTION4_ID && handlers) {
@@ -105,7 +91,7 @@ function FullPageScrollerInner({ children }: { children: ReactNode }) {
     };
 
     const trySection56Transition = async (direction: 1 | -1) => {
-      const currentSectionId = getCurrentSectionId() ?? activeSectionId;
+      const currentSectionId = getCurrentSectionId();
       const handlers = section56HandlersRef.current;
 
       if (direction === 1 && currentSectionId === SECTION5_ID && handlers) {
@@ -139,24 +125,35 @@ function FullPageScrollerInner({ children }: { children: ReactNode }) {
       return false;
     };
 
+    const navigateByDirection = async (direction: 1 | -1) => {
+      if (lockRef.current || isTransitioning()) return;
+
+      const targets = getSnapTargets(container);
+      if (!targets.length) return;
+
+      const currentSnap = getClosestSnapIndex(container.scrollTop, targets);
+      const nextSnap = currentSnap + direction;
+
+      if (nextSnap < 0 || nextSnap >= targets.length) return;
+
+      const currentTarget = targets[currentSnap];
+      const nextTarget = targets[nextSnap];
+
+      if (!currentTarget || !nextTarget) return;
+
+      if (currentTarget.sectionId !== nextTarget.sectionId) {
+        const handled = await tryCustomTransition(direction);
+        if (handled) return;
+      }
+
+      scrollToTop(nextTarget.top);
+    };
+
     const handleWheel = async (event: WheelEvent) => {
       if (Math.abs(event.deltaY) < WHEEL_THRESHOLD) return;
 
       event.preventDefault();
-
-      if (lockRef.current || isTransitioning()) return;
-
-      const sections = getSections();
-      const currentIndex = getCurrentIndex();
-      const direction = event.deltaY > 0 ? 1 : -1;
-      const nextIndex = currentIndex + direction;
-
-      if (nextIndex < 0 || nextIndex >= sections.length) return;
-
-      const handled = await tryCustomTransition(direction);
-      if (handled) return;
-
-      scrollToIndex(nextIndex);
+      await navigateByDirection(event.deltaY > 0 ? 1 : -1);
     };
 
     const handleTouchStart = (event: TouchEvent) => {
@@ -168,48 +165,25 @@ function FullPageScrollerInner({ children }: { children: ReactNode }) {
       const endY = event.changedTouches[0]?.clientY;
 
       touchStartYRef.current = null;
-      if (startY == null || endY == null || lockRef.current) return;
+      if (startY == null || endY == null) return;
 
       const deltaY = startY - endY;
       if (Math.abs(deltaY) < 48) return;
 
-      if (lockRef.current || isTransitioning()) return;
-
-      const sections = getSections();
-      const currentIndex = getCurrentIndex();
-      const direction = deltaY > 0 ? 1 : -1;
-      const nextIndex = currentIndex + direction;
-
-      if (nextIndex < 0 || nextIndex >= sections.length) return;
-
-      const handled = await tryCustomTransition(direction);
-      if (handled) return;
-
-      scrollToIndex(nextIndex);
+      await navigateByDirection(deltaY > 0 ? 1 : -1);
     };
 
     const handleKeyDown = async (event: KeyboardEvent) => {
       if (lockRef.current || isTransitioning()) return;
 
-      const sections = getSections();
-      const currentIndex = getCurrentIndex();
-
       if (event.key === "ArrowDown" || event.key === "PageDown") {
         event.preventDefault();
-
-        const handled = await tryCustomTransition(1);
-        if (handled) return;
-
-        scrollToIndex(currentIndex + 1);
+        await navigateByDirection(1);
       }
 
       if (event.key === "ArrowUp" || event.key === "PageUp") {
         event.preventDefault();
-
-        const handled = await tryCustomTransition(-1);
-        if (handled) return;
-
-        scrollToIndex(currentIndex - 1);
+        await navigateByDirection(-1);
       }
     };
 

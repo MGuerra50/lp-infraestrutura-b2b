@@ -10,6 +10,7 @@ import { EcosystemSection } from "@/components/ecosystem/EcosystemSection";
 import { CaseStudiesSection } from "@/components/case-studies/CaseStudiesSection";
 import { DeploymentJourneySection } from "@/components/deployment-journey/DeploymentJourneySection";
 import { ContactCtaSection } from "@/components/contact-cta/ContactCtaSection";
+import { SiteFooter } from "@/components/layout/SiteFooter";
 
 export function HomeExperience() {
   return (
@@ -37,8 +38,13 @@ export function HomeExperience() {
         <DeploymentJourneySection />
       </FullPageSection>
 
-      <FullPageSection id="contato" className="relative z-30 bg-[#050508]">
-        <ContactCtaSection />
+      <FullPageSection id="contato" footerExtension className="relative z-30 bg-[#050508]">
+        <div className="h-dvh">
+          <ContactCtaSection />
+        </div>
+        <div className="h-[50dvh] snap-start snap-always" data-footer-snap>
+          <SiteFooter />
+        </div>
       </FullPageSection>
     </FullPageScroller>
   );

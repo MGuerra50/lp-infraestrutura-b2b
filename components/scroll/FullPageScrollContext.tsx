@@ -108,6 +108,7 @@ export function useSetActiveSection() {
 export const SECTION4_ID = "recursos-tecnicos";
 export const SECTION5_ID = "ecossistema";
 export const SECTION6_ID = "case-studies";
+export const SECTION_CONTACT_ID = "contato";
 
 export function scrollToSectionId(
   container: HTMLDivElement | null,
@@ -120,5 +121,11 @@ export function scrollToSectionId(
     `[data-fullpage-section="${id}"]`,
   );
 
-  section?.scrollIntoView({ behavior, block: "start" });
+  if (!section) return;
+
+  const containerRect = container.getBoundingClientRect();
+  const sectionRect = section.getBoundingClientRect();
+  const top = sectionRect.top - containerRect.top + container.scrollTop;
+
+  container.scrollTo({ top, behavior });
 }
