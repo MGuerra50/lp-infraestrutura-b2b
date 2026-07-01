@@ -249,7 +249,7 @@ export function DeploymentJourneySection() {
           <h2 className="text-[clamp(1.75rem,3.5vw,3rem)] font-bold uppercase leading-none tracking-tight text-white">
             Consultoria & Deploy
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-white/55 md:text-base">
+          <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-white/95 md:text-base" style={{ textShadow: "1px 1px 1px rgba(0, 0, 0, 0.9)" }}>
             Da estratégia à operação contínua — um processo claro, previsível e
             desenhado para conversão em resultados mensuráveis.
           </p>

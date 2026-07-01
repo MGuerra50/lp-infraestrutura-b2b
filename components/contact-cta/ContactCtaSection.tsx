@@ -8,7 +8,7 @@ import { useFullPageScroll } from "@/components/scroll/FullPageScrollContext";
 const CONTACT_BACKGROUND_SRC = "/form-design.png";
 
 const INPUT_CLASS =
-  "w-full rounded-xl border border-white/[0.08] bg-[#0a0e14]/80 px-4 py-3.5 text-sm text-white outline-none transition-[border-color,box-shadow] placeholder:text-white/35 focus:border-brand/50 focus:shadow-[0_0_0_1px_rgba(47,169,255,0.45),0_0_24px_rgba(47,169,255,0.18)]";
+  "w-full rounded-xl border border-black/10 bg-[#f4f4f5] px-4 py-3.5 text-sm text-[#171717] outline-none transition-[border-color,box-shadow,background-color] placeholder:text-[#8a8a8a] focus:border-brand/50 focus:bg-white focus:shadow-[0_0_0_1px_rgba(47,169,255,0.35),0_0_20px_rgba(47,169,255,0.12)]";
 
 type FormFields = {
   fullName: string;
@@ -102,6 +102,11 @@ export function ContactCtaSection() {
         sizes="100vw"
       />
 
+      <div
+        className="pointer-events-none absolute inset-0 bg-black/25"
+        aria-hidden
+      />
+
       <div className="relative z-10 flex h-full items-center px-6 py-14 md:px-10 md:py-16 lg:px-16 lg:py-20">
         <div className="mx-auto grid w-full max-w-6xl items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:gap-14 xl:gap-20">
           <div ref={copyRef} className="opacity-0">
@@ -111,7 +116,7 @@ export function ContactCtaSection() {
             <h2 className="text-[clamp(1.85rem,3.8vw,3.25rem)] font-bold leading-[1.05] tracking-tight text-white">
               Pronto para Escalar sem Limites?
             </h2>
-            <p className="mt-5 max-w-lg text-sm leading-relaxed text-white/55 md:text-base md:leading-relaxed">
+            <p className="mt-5 max-w-lg text-sm leading-relaxed text-white/85 md:text-base md:leading-relaxed">
               Solicite um Diagnóstico de Arquitetura. Nossos engenheiros
               avaliarão sua infraestrutura atual e desenharão um plano de
               transição seguro e otimizado para o seu negócio.
@@ -121,7 +126,7 @@ export function ContactCtaSection() {
           <form
             ref={formRef}
             onSubmit={handleSubmit}
-            className="opacity-0 rounded-2xl border border-brand/25 bg-white/[0.04] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_24px_64px_rgba(0,0,0,0.35)] backdrop-blur-xl md:p-8"
+            className="opacity-0 rounded-2xl border border-black/[0.06] bg-white p-6 shadow-[0_20px_60px_rgba(0,0,0,0.08)] md:p-8"
           >
             <div className="space-y-4">
               <input
