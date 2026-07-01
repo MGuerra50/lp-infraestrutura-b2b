@@ -1,8 +1,11 @@
 "use client";
 
 import gsap from "gsap";
+import Image from "next/image";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { useFullPageScroll } from "@/components/scroll/FullPageScrollContext";
+
+const CONTACT_BACKGROUND_SRC = "/form-design.png";
 
 const INPUT_CLASS =
   "w-full rounded-xl border border-white/[0.08] bg-[#0a0e14]/80 px-4 py-3.5 text-sm text-white outline-none transition-[border-color,box-shadow] placeholder:text-white/35 focus:border-brand/50 focus:shadow-[0_0_0_1px_rgba(47,169,255,0.45),0_0_24px_rgba(47,169,255,0.18)]";
@@ -90,22 +93,13 @@ export function ContactCtaSection() {
 
   return (
     <div className="relative h-full overflow-hidden bg-[#050508]">
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(ellipse 80% 60% at 20% 50%, rgba(47,169,255,0.07), transparent 55%), radial-gradient(ellipse 70% 50% at 85% 30%, rgba(15,25,45,0.9), transparent 50%), linear-gradient(160deg, #050508 0%, #0a0f1a 45%, #060810 100%)",
-        }}
-        aria-hidden
-      />
-
-      <div
-        className="pointer-events-none absolute inset-0 opacity-[0.35]"
-        style={{
-          backgroundImage:
-            "repeating-linear-gradient(90deg, rgba(255,255,255,0.02) 0, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 72px)",
-        }}
-        aria-hidden
+      <Image
+        src={CONTACT_BACKGROUND_SRC}
+        alt=""
+        fill
+        unoptimized
+        className="object-cover object-center"
+        sizes="100vw"
       />
 
       <div className="relative z-10 flex h-full items-center px-6 py-14 md:px-10 md:py-16 lg:px-16 lg:py-20">

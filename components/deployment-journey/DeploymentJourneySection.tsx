@@ -108,8 +108,8 @@ function JourneyStep({
   const { Icon } = step;
 
   return (
-    <li ref={stepRef} className="relative flex flex-1 flex-col opacity-0">
-      <article className="relative z-10 flex h-full w-full flex-col items-center rounded-2xl border border-white/20 bg-white/[0.07] px-5 py-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_8px_32px_rgba(0,0,0,0.18)] backdrop-blur-md transition-[border-color,box-shadow] duration-300 hover:border-brand/35 hover:shadow-[0_0_40px_rgba(47,169,255,0.12)] md:px-6 md:py-7">
+    <li ref={stepRef} className="relative flex flex-1 flex-col invisible">
+      <article className="relative z-10 flex h-full w-full flex-col items-center rounded-2xl border border-white/20 bg-white/[0.07] px-5 py-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_8px_32px_rgba(0,0,0,0.18)] [transform:translateZ(0)] backdrop-blur-md transition-[border-color,box-shadow] duration-300 hover:border-brand/35 hover:shadow-[0_0_40px_rgba(47,169,255,0.12)] md:px-6 md:py-7">
         <div className="flex flex-col items-center">
           <div className="flex h-16 w-16 items-center justify-center rounded-full border border-white/25 bg-white/[0.06] text-white shadow-[0_0_24px_rgba(255,255,255,0.08)] backdrop-blur-sm">
             <Icon />
@@ -167,23 +167,23 @@ export function DeploymentJourneySection() {
     if (!isActive) {
       gsap.set(header, { opacity: 0, y: 24 });
       gsap.set(line, { scaleX: 0, opacity: 0 });
-      gsap.set(steps, { opacity: 0, y: 28 });
-      gsap.set(cta, { opacity: 0, y: 20 });
+      gsap.set(steps, { y: 28, visibility: "hidden" });
+      gsap.set(cta, { y: 20, visibility: "hidden" });
       return;
     }
 
     if (prefersReducedMotion) {
       gsap.set(header, { opacity: 1, y: 0 });
       gsap.set(line, { scaleX: 1, opacity: 1 });
-      gsap.set(steps, { opacity: 1, y: 0 });
-      gsap.set(cta, { opacity: 1, y: 0 });
+      gsap.set(steps, { y: 0, visibility: "visible" });
+      gsap.set(cta, { y: 0, visibility: "visible" });
       return;
     }
 
     gsap.set(header, { opacity: 0, y: 24 });
     gsap.set(line, { scaleX: 0, opacity: 0, transformOrigin: "left center" });
-    gsap.set(steps, { opacity: 0, y: 28 });
-    gsap.set(cta, { opacity: 0, y: 20 });
+    gsap.set(steps, { y: 28, visibility: "hidden" });
+    gsap.set(cta, { y: 20, visibility: "hidden" });
 
     const timeline = gsap.timeline({ defaults: { ease: "power3.out" } });
 
@@ -199,12 +199,12 @@ export function DeploymentJourneySection() {
 
     timeline.to(
       steps,
-      { opacity: 1, y: 0, duration: 0.8, stagger: 0.18 },
+      { y: 0, visibility: "visible", duration: 0.8, stagger: 0.18 },
       0.35,
     );
 
     if (cta) {
-      timeline.to(cta, { opacity: 1, y: 0, duration: 0.65 }, 0.75);
+      timeline.to(cta, { y: 0, visibility: "visible", duration: 0.65 }, 0.75);
     }
 
     timelineRef.current = timeline;
@@ -278,7 +278,7 @@ export function DeploymentJourneySection() {
           <Link
             ref={ctaRef}
             href="/agendar-consulta"
-            className="inline-flex items-center justify-center rounded-full border border-white/25 bg-white/[0.08] px-8 py-3.5 text-sm font-medium text-white opacity-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-md transition-colors hover:border-brand/40 hover:bg-brand/15 hover:text-white"
+            className="inline-flex items-center justify-center rounded-full border border-white/25 bg-white/[0.08] px-8 py-3.5 text-sm font-medium text-white invisible shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] [transform:translateZ(0)] backdrop-blur-md transition-colors hover:border-brand/40 hover:bg-brand/15 hover:text-white"
           >
             Iniciar jornada de consultoria
           </Link>
