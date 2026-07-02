@@ -377,6 +377,7 @@ export function Section4To5ImageTransition() {
           alt=""
           fill
           unoptimized
+          priority
           className="object-cover object-center"
           sizes="50vw"
         />
@@ -388,6 +389,7 @@ export function Section4To5ImageTransition() {
           alt=""
           fill
           unoptimized
+          priority
           className="object-cover object-center"
           sizes="100vw"
         />
